@@ -837,10 +837,9 @@ class lessc {
 			list(, $num, $unit) = $value;
 			// [1] - the number
 			// [2] - the unit
-			if ($this->numberPrecision !== null) {
-				$num = round($num, $this->numberPrecision);
-			}
-			return $num . $unit;
+
+				return $this->roundNumber($num, $unit);
+
 		case 'string':
 			// [1] - contents of string (includes quotes)
 			list(, $delim, $content) = $value;
@@ -849,6 +848,7 @@ class lessc {
 					$part = $this->compileValue($part);
 				}
 			}
+
 			return $delim . implode($content) . $delim;
 		case 'color':
 			// [1] - red component (either number or a %)
@@ -883,7 +883,51 @@ class lessc {
 		}
 	}
 
-	protected function lib_pow($args) {
+	/**
+	 * Set preciosion to round regualary decimals during rendering
+	 *
+	 * @param int $precision
+	 *
+	 * @return int
+	 */
+	public function setNumberPrecision($precision = 0)
+	{
+		return $this->numberPrecision = (int) $precision;
+	}
+
+	/**
+	 * Method to remove decimals from non decimaleable values in browser
+	 *
+	 * @param null $value
+	 * @param null $unit
+	 *
+	 * @return string
+	 */
+	protected function roundNumber($value = null, $unit = null)
+	{
+		$prec = $this->numberPrecision;
+
+		if($prec === null){
+			return $num . $unit;
+		}
+
+		switch($unit){
+
+			case "px":
+				$prec = 0;
+				break;
+			// adding more for pt and other non decimal values
+
+		}
+
+		$num = round($num, $prec);
+
+		return $num . $unit;
+
+	}
+
+	protected function lib_pow($args)
+	{
 		list($base, $exp) = $this->assertArgs($args, 2, "pow");
 		return pow($this->assertNumber($base), $this->assertNumber($exp));
 	}
